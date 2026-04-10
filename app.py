@@ -11,7 +11,7 @@ import mysql.connector
 import requests
 
 
-HOST = "127.0.0.1"
+HOST = "0.0.0.0"
 PORT = 8000
 BASE_DIR = Path(__file__).resolve().parent
 LOG_FILE = BASE_DIR / "log.txt"
