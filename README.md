@@ -24,6 +24,22 @@ It supports two different chat modes in one UI:
 
 ---
 
+## 📷 Screenshots
+
+### HR Database
+
+![HR Database](assets/Screenshot%20-%20HR%20Database.png)
+
+### Regular Chat
+
+![Regular Chat](assets/Screenshot%20-%20Regular%20Chat.png)
+
+### Logs Viewer
+
+![Logs Viewer](assets/Screenshot%20-%20Logs.png)
+
+---
+
 ## 🧰 Tech Stack
 
 - `Python`
@@ -321,4 +337,3 @@ This project is a local dual-mode chatbot:
 - 📜 JSON-based logging
 - 🔐 protected logs viewer
 - 🤖 powered by local Ollama
-
