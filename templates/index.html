@@ -1,0 +1,620 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Local HR Chatbot</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        background: #343541;
+        color: #fff;
+      }
+
+      .chat-container {
+        max-width: 900px;
+        margin: auto;
+        height: 95vh;
+        display: flex;
+        flex-direction: column;
+        padding: 12px;
+      }
+
+      .chat-box {
+        flex: 1;
+        overflow-y: auto;
+        padding: 20px;
+        background: #343541;
+        scroll-behavior: smooth;
+      }
+
+      .msg {
+        margin-bottom: 16px;
+        display: flex;
+      }
+
+      .user-msg {
+        justify-content: flex-end;
+      }
+
+      .user-msg span {
+        background: #0b93f6;
+        color: #fff;
+        padding: 10px 14px;
+        border-radius: 12px;
+        max-width: 70%;
+      }
+
+      .bot-msg span {
+        background: #444654;
+        color: #fff;
+        padding: 10px 14px;
+        border-radius: 12px;
+        max-width: 70%;
+      }
+
+      .input-box {
+        display: flex;
+        gap: 10px;
+        padding: 10px;
+        background: #40414f;
+        border-radius: 10px;
+        align-items: flex-end;
+      }
+
+      textarea {
+        resize: none;
+        background: #40414f !important;
+        color: #fff !important;
+        border: none !important;
+        outline: none !important;
+        box-shadow: none !important;
+        max-height: 150px;
+        overflow-y: auto;
+      }
+      .form-control {
+        color: #fff !important;
+        background-color: transparent !important;
+      }
+      .form-control::placeholder,
+      textarea::placeholder {
+        color: #ccc !important;
+      }
+
+      button {
+        white-space: nowrap;
+      }
+
+    table {
+      color: #fff;
+    }
+
+    .table-wrap {
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    .table-wrap table {
+      width: 100%;
+      table-layout: fixed;
+      margin-bottom: 0;
+    }
+
+    .table-wrap th,
+    .table-wrap td {
+      word-break: break-word;
+      white-space: normal;
+    }
+
+      .toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 12px;
+        padding: 10px 14px;
+        background: #40414f;
+        border-radius: 10px;
+        flex-wrap: wrap;
+      }
+
+      .mode-group {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .mode-pill {
+        border: 1px solid #6c757d;
+        background: transparent;
+        color: #fff;
+        border-radius: 999px;
+        padding: 6px 14px;
+        cursor: pointer;
+      }
+
+      .mode-pill.active {
+        background: #198754;
+        border-color: #198754;
+      }
+
+      .mode-hint {
+        color: #cfcfcf;
+        font-size: 0.92rem;
+      }
+
+      .toolbar-actions {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+
+      .logs-panel {
+        display: none;
+        margin-bottom: 12px;
+        padding: 14px;
+        background: #2d2f39;
+        border-radius: 10px;
+        border: 1px solid #4d5160;
+      }
+
+      .logs-panel.open {
+        display: block;
+      }
+
+      .logs-controls {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 12px;
+      }
+
+      .logs-controls input {
+        max-width: 220px;
+        background: #40414f;
+        color: #fff;
+        border: 1px solid #5d6270;
+      }
+
+      .logs-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        max-height: 320px;
+        overflow-y: auto;
+      }
+
+      .log-item {
+        background: #40414f;
+        border-radius: 10px;
+        padding: 12px;
+        border: 1px solid #545a6a;
+      }
+
+      .log-meta {
+        font-size: 0.9rem;
+        color: #cfd3dc;
+        margin-bottom: 6px;
+      }
+
+      .log-badge {
+        display: inline-block;
+        margin-right: 8px;
+        padding: 2px 8px;
+        border-radius: 999px;
+        font-size: 0.8rem;
+        font-weight: 600;
+      }
+
+      .log-badge.hr {
+        background: #198754;
+        color: #fff;
+      }
+
+      .log-badge.regular {
+        background: #0d6efd;
+        color: #fff;
+      }
+
+      .log-label {
+        font-weight: 600;
+        color: #fff;
+      }
+
+      .logs-status {
+        color: #d5d9e3;
+        font-size: 0.92rem;
+      }
+
+      .log-answer-table {
+        width: 100%;
+        margin-top: 8px;
+        color: #fff;
+        font-size: 0.9rem;
+        border-collapse: collapse;
+      }
+
+      .log-answer-table th,
+      .log-answer-table td {
+        border: 1px solid #5a6070;
+        padding: 6px 8px;
+        vertical-align: top;
+      }
+
+      .log-answer-table th {
+        background: #363947;
+      }
+
+      .log-note {
+        color: #c9ced9;
+        font-size: 0.88rem;
+        margin-top: 6px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="chat-container">
+      <h4 class="text-center mb-3">Local HR Chatbot</h4>
+      <div class="toolbar">
+        <div class="mode-group">
+          <button
+            id="hrModeBtn"
+            class="mode-pill active"
+            type="button"
+            onclick="setMode('hr')"
+          >
+            HR Database
+          </button>
+          <button
+            id="regularModeBtn"
+            class="mode-pill"
+            type="button"
+            onclick="setMode('regular')"
+          >
+            Regular Chat
+          </button>
+        </div>
+        <div class="toolbar-actions">
+          <div id="modeHint" class="mode-hint">Mode: HR Database search</div>
+          <button
+            class="btn btn-outline-light btn-sm"
+            type="button"
+            onclick="toggleLogsPanel()"
+          >
+            View Logs
+          </button>
+        </div>
+      </div>
+      <div id="logsPanel" class="logs-panel">
+        <div class="logs-controls">
+          <input
+            id="logsPassword"
+            type="password"
+            class="form-control"
+            placeholder="Enter logs password"
+          />
+          <button
+            class="btn btn-warning btn-sm"
+            type="button"
+            onclick="loadLogs()"
+          >
+            Load Logs
+          </button>
+          <button
+            class="btn btn-secondary btn-sm"
+            type="button"
+            onclick="closeLogsPanel()"
+          >
+            Close
+          </button>
+        </div>
+        <div id="logsStatus" class="logs-status mb-2">
+          Enter password to view saved conversations.
+        </div>
+        <div id="logsList" class="logs-list"></div>
+      </div>
+      <div id="chat" class="chat-box"></div>
+
+      <div class="input-box">
+        <textarea
+          autofocus
+          id="msg"
+          class="form-control"
+          rows="1"
+          placeholder="Type message... (Enter to send, Shift+Enter for new line)"
+        ></textarea>
+        <button class="btn btn-primary" onclick="sendMessage()">Send</button>
+      </div>
+    </div>
+
+    <script>
+      let currentMode = "hr";
+      const chatHistory = {
+        hr: [],
+        regular: [],
+      };
+
+      function toggleLogsPanel() {
+        const panel = document.getElementById("logsPanel");
+        panel.classList.toggle("open");
+      }
+
+      function closeLogsPanel() {
+        document.getElementById("logsPanel").classList.remove("open");
+      }
+
+      document.getElementById("msg").addEventListener("keydown", function (e) {
+        if (e.key === "Enter" && !e.shiftKey) {
+          e.preventDefault();
+          sendMessage();
+        }
+      });
+
+      const textarea = document.getElementById("msg");
+
+      textarea.addEventListener("input", function () {
+        this.style.height = "auto";
+        this.style.height = this.scrollHeight + "px";
+      });
+
+      function scrollChatToBottom() {
+        const chat = document.getElementById("chat");
+        requestAnimationFrame(() => {
+          chat.scrollTop = chat.scrollHeight;
+        });
+      }
+
+      function renderCurrentChat() {
+        const chat = document.getElementById("chat");
+        chat.innerHTML = "";
+
+        chatHistory[currentMode].forEach((html) => {
+          chat.innerHTML += html;
+        });
+
+        scrollChatToBottom();
+      }
+
+      function setMode(mode) {
+        currentMode = mode;
+
+        document
+          .getElementById("hrModeBtn")
+          .classList.toggle("active", mode === "hr");
+        document
+          .getElementById("regularModeBtn")
+          .classList.toggle("active", mode === "regular");
+
+        const input = document.getElementById("msg");
+        const modeHint = document.getElementById("modeHint");
+
+        if (mode === "hr") {
+          input.placeholder =
+            "Ask HR database questions like inactive employees, count of employees, employees in sales...";
+          modeHint.textContent = "Mode: HR Database search";
+        } else {
+          input.placeholder =
+            "Ask regular chatbot questions like writing help, explanations, ideas...";
+          modeHint.textContent = "Mode: Regular chatbot";
+        }
+
+        renderCurrentChat();
+      }
+
+      async function sendMessage() {
+        const input = document.getElementById("msg");
+        const msg = input.value.trim();
+        if (!msg) return;
+
+        const chat = document.getElementById("chat");
+        const userHtml = `
+        <div class="msg user-msg">
+          <span><strong>${currentMode === "hr" ? "HR" : "Chat"}:</strong> ${escapeHtml(msg).replace(/\n/g, "<br>")}</span>
+        </div>
+      `;
+        chatHistory[currentMode].push(userHtml);
+        chat.innerHTML += userHtml;
+
+        input.value = "";
+        input.style.height = "auto";
+        scrollChatToBottom();
+
+        const botDiv = document.createElement("div");
+        botDiv.className = "msg bot-msg";
+        botDiv.innerHTML = `<span>Analyzing...</span>`;
+        chat.appendChild(botDiv);
+        scrollChatToBottom();
+
+        try {
+          const res = await fetch("/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ message: msg, mode: currentMode }),
+          });
+
+          const result = await res.json();
+
+          if (result.type === "table") {
+            renderTable(botDiv, result.data);
+          } else {
+            botDiv.innerHTML = `<span>${escapeHtml(result.data || "No response").replace(/\n/g, "<br>")}</span>`;
+          }
+
+          if (currentMode === "hr" && result.debug) {
+            addDebugPanel(botDiv, result.debug);
+          }
+
+          chatHistory[currentMode].push(botDiv.outerHTML);
+        } catch (err) {
+          botDiv.innerHTML = `<span class="text-danger">Error: Failed to connect</span>`;
+          chatHistory[currentMode].push(botDiv.outerHTML);
+        }
+
+        scrollChatToBottom();
+      }
+
+      async function loadLogs() {
+        const password = document.getElementById("logsPassword").value.trim();
+        const logsList = document.getElementById("logsList");
+        const logsStatus = document.getElementById("logsStatus");
+
+        logsList.innerHTML = "";
+        logsStatus.textContent = "Loading conversations...";
+
+        try {
+          const res = await fetch("/logs", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ password }),
+          });
+
+          const result = await res.json();
+
+          if (!res.ok) {
+            logsStatus.textContent = result.data || "Failed to load logs";
+            return;
+          }
+
+          renderLogs(result.data || []);
+        } catch (err) {
+          logsStatus.textContent = "Failed to load logs";
+        }
+      }
+
+      function renderLogs(logs) {
+        const logsList = document.getElementById("logsList");
+        const logsStatus = document.getElementById("logsStatus");
+
+        if (!logs.length) {
+          logsList.innerHTML = "";
+          logsStatus.textContent = "No saved conversations found.";
+          return;
+        }
+
+        logsStatus.textContent = `Showing ${logs.length} conversation entries`;
+        logsList.innerHTML = logs
+          .map((entry) => {
+            const mode = entry.mode === "regular" ? "regular" : "hr";
+            const label = mode === "regular" ? "Regular Chat" : "HR Database";
+            const answer = formatLogAnswer(entry.answer);
+
+            return `
+          <div class="log-item">
+            <div class="log-meta">
+              <span class="log-badge ${mode}">${label}</span>
+              <span>${escapeHtml(entry.timestamp || "")}</span>
+            </div>
+            <div><span class="log-label">Question:</span> ${escapeHtml(String(entry.question || ""))}</div>
+            <div class="mt-2"><span class="log-label">Answer:</span> ${answer}</div>
+          </div>
+        `;
+          })
+          .join("");
+      }
+
+      function formatLogAnswer(answer) {
+        if (Array.isArray(answer)) {
+          if (!answer.length) {
+            return "No rows";
+          }
+
+          const columns = Object.keys(answer[0]).slice(0, 6);
+          let table = `<table class="log-answer-table"><thead><tr>`;
+
+          columns.forEach((column) => {
+            table += `<th>${escapeHtml(column)}</th>`;
+          });
+
+          table += `</tr></thead><tbody>`;
+
+          answer.slice(0, 5).forEach((row) => {
+            table += "<tr>";
+            columns.forEach((column) => {
+              table += `<td>${escapeHtml(String(row[column] ?? ""))}</td>`;
+            });
+            table += "</tr>";
+          });
+
+          table += "</tbody></table>";
+
+          if (answer.length > 5) {
+            table += `<div class="log-note">Showing 5 of ${answer.length} rows</div>`;
+          }
+
+          return table;
+        }
+
+        return escapeHtml(String(answer ?? ""));
+      }
+
+    function renderTable(container, data) {
+      if (!data.length) {
+        container.innerHTML = "<span>No data found</span>";
+        return;
+      }
+
+      let table = `
+        <div class="table-wrap">
+        <table class="table table-dark table-striped table-bordered table-sm mt-2">
+          <thead><tr>
+      `;
+
+        Object.keys(data[0]).forEach((key) => {
+          table += `<th>${escapeHtml(key)}</th>`;
+        });
+
+        table += `</tr></thead><tbody>`;
+
+        data.forEach((row) => {
+          table += `<tr>`;
+          Object.values(row).forEach((val) => {
+            table += `<td>${escapeHtml(String(val ?? ""))}</td>`;
+          });
+          table += `</tr>`;
+        });
+
+      table += `</tbody></table></div>`;
+      container.innerHTML = table;
+    }
+
+      function addDebugPanel(container, debug) {
+        const id = "debug_" + Math.random().toString(36).slice(2, 7);
+        const query = escapeHtml(debug.query || "");
+        const sql = escapeHtml(debug.sql || "");
+
+        const debugHtml = `
+        <div class="mt-2">
+          <button class="btn btn-sm btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#${id}">
+            View Debug
+          </button>
+          <div id="${id}" class="collapse mt-2">
+            <div class="card card-body bg-dark">
+              <pre style="margin:0;">Query: ${query}
+
+SQL: ${sql}</pre>
+            </div>
+          </div>
+        </div>
+      `;
+
+        container.innerHTML += debugHtml;
+      }
+
+      function escapeHtml(value) {
+        return value
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#39;");
+      }
+
+      setMode("hr");
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>
