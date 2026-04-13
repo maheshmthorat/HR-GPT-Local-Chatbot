@@ -121,12 +121,6 @@ Run the backend:
 python app.py
 ```
 
-If your machine uses a specific Python path, run it like this:
-
-```powershell
-& "C:\Users\mahes\AppData\Local\Programs\Python\Python314\python.exe" app.py
-```
-
 Open in browser:
 
 ```text
